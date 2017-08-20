@@ -5,3 +5,4 @@ bin/*
 /target/
 /access.log
 /bot.log
+/settings.properties
