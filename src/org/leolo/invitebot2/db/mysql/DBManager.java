@@ -30,16 +30,27 @@ public class DBManager extends org.leolo.invitebot2.db.DBManager{
 
 	@Override
 	public boolean testConnection() throws SQLException {
-		Connection conn = ds.getConnection();
-		logger.debug("Connection is type {}", conn.getClass().getCanonicalName());
-		PreparedStatement pstmt = conn.prepareStatement("SELECT NOW(), MD5(?) FROM dual;");
-		pstmt.setString(1, "TestConnection");
-		ResultSet rs = pstmt.executeQuery();
-		if(rs.next()){
-			logger.info("Time is {}, hash is {}", rs.getString(1), rs.getString(2));
-			return true;
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try{
+			conn = ds.getConnection();
+			stmt= conn.createStatement();
+			rs = stmt.executeQuery("SELECT NOW()");
+			return rs.next();
+		}catch(SQLException sqle){
+			throw sqle;
+		}finally{
+			if(rs!=null){
+				rs.close();
+			}
+			if(stmt!=null){
+				stmt.close();
+			}
+			if(conn!=null){
+				conn.close();
+			}
 		}
-		return false;
 	}
 
 	@Override
