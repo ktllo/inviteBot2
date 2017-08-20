@@ -17,7 +17,7 @@ public class BotManager {
                 .addAutoJoinChannel("##invitebot")
                 .addCapHandler(new EnableCapHandler("extended-join",false))
 //                .addListener(new InviteBot())
-                .addListener(new UserAccountChecker())
+                .addListener(UserAccountChecker.getInstance())
                 .setOnJoinWhoEnabled(true)
                 .buildConfiguration();
 

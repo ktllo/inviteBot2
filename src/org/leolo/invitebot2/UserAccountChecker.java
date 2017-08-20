@@ -21,7 +21,18 @@ public class UserAccountChecker extends ListenerAdapter {
 	private HashMap<String, UserInfo> userList = new HashMap<>();
 	private static final long MAX_VALID_TIME = 1_800_000;//Unit is ms
 	private static final long RETRY_TIME = 1_800_000;//Unit is ms
+	private static UserAccountChecker instance = null;
 	
+	//Avoid being instanceized
+	private UserAccountChecker(){
+		
+	}
+	
+	public static synchronized UserAccountChecker getInstance(){
+		if(instance == null)
+			instance = new UserAccountChecker();
+		return instance;
+	}
 	
 	@Override
 	public void onJoin(JoinEvent event){
