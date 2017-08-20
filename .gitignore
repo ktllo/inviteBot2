@@ -1,0 +1,7 @@
+*~
+target/*
+bin/*
+/bin/
+/target/
+/access.log
+/bot.log
