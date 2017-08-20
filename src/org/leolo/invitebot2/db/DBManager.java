@@ -33,4 +33,6 @@ public abstract class DBManager {
 	public abstract void init() throws SQLException;
 	
 	public abstract boolean testConnection() throws SQLException;
+	
+	public abstract ConfigDao getConfigDao();
 }
