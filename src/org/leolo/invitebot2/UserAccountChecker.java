@@ -102,53 +102,12 @@ public class UserAccountChecker extends ListenerAdapter {
 	public void onGenericMessage(GenericMessageEvent event) throws Exception {
 		logger.error(event.getClass().getCanonicalName());
 	}
-	class UserInfo{
-		private String nick;
-		private String hostmask;
-		private String loggedInAs;
-		private long time;
-		
-		private UserInfo(String nick, String hostmask, String loggedInAs){
-			this.nick = nick;
-			this.hostmask = hostmask;
-			this.loggedInAs = loggedInAs;
-			this.time = System.currentTimeMillis();
+	
+	public String getLoggedInAs(String nickname){
+		UserInfo ui = userList.get(nickname);
+		if(ui == null){
+			return null; 
 		}
-
-		public String getNick() {
-			return nick;
-		}
-
-		public void setNick(String nick) {
-			this.nick = nick;
-		}
-
-		public String getHostmask() {
-			return hostmask;
-		}
-
-		public void setHostmask(String hostmask) {
-			this.hostmask = hostmask;
-		}
-
-		public String getLoggedInAs() {
-			return loggedInAs;
-		}
-
-		public void setLoggedInAs(String loggedInAs) {
-			this.loggedInAs = loggedInAs;
-		}
-
-		public long getTime() {
-			return time;
-		}
-
-		public void renewTime(){
-			time = System.currentTimeMillis();
-		}
-		
-		public void invalidate(){
-			time = 0;
-		}
+		return ui.loggedInAs;
 	}
 }
