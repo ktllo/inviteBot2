@@ -35,4 +35,6 @@ public abstract class DBManager {
 	public abstract boolean testConnection() throws SQLException;
 	
 	public abstract ConfigDao getConfigDao();
+	
+	public abstract CommandAliasDao getCommandAliasDao();
 }

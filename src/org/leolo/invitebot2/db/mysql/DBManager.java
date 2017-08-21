@@ -5,6 +5,7 @@ import java.sql.*;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.leolo.invitebot2.db.CommandAliasDao;
 import org.leolo.invitebot2.db.ConfigDao;
 
 public class DBManager extends org.leolo.invitebot2.db.DBManager{
@@ -56,6 +57,12 @@ public class DBManager extends org.leolo.invitebot2.db.DBManager{
 	@Override
 	public ConfigDao getConfigDao() {
 		return new org.leolo.invitebot2.db.mysql.ConfigDao(ds);
+	}
+
+	@Override
+	public CommandAliasDao getCommandAliasDao() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
