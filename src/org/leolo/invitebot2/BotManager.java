@@ -16,6 +16,8 @@ public class BotManager {
 	
 	Logger logger = LoggerFactory.getLogger(BotManager.class);
 	
+	public static PircBotX bot;
+	
 	public static void main(String [] args) throws IOException, IrcException{
 		Logger logger = LoggerFactory.getLogger(BotManager.class);
 		Properties prop = new Properties();
@@ -53,7 +55,7 @@ public class BotManager {
                 .buildConfiguration();
 
 		//Create our bot with the configuration
-		PircBotX bot = new PircBotX(configuration);
+		bot = new PircBotX(configuration);
 		//Connect to the server
 		bot.startBot();
 	}
