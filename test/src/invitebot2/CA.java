@@ -21,19 +21,19 @@ public class CA {
 			fail();
 		if(!ca.match("poo line").equals("poo line"))
 			fail();
-		ca = CommandAlias.getAlias("([bp]o+)", "echo $1", CommandAlias.REGULAR_EXPRESSION);
-		System.out.println(ca.match("boo line"));
-//			fail();
-		System.out.println(ca.match("poo line"));
-//			fail();
-		System.out.println(ca.match("booooooo line"));
-//			fail();
-		System.out.println(ca.match("po"));
-//			fail();
-		System.out.println(ca.match("tooooooo line"));
-//			fail();
-		System.out.println(ca.match("ptyo line"));
-//			fail();
+		ca = CommandAlias.getAlias("([bp]o+)\\ ", "echo $1", CommandAlias.REGULAR_EXPRESSION);
+		if(!ca.match("boo line").equals("echo boo line"))
+			fail();
+		if(!ca.match("poo line").equals("echo poo line"))
+			fail();
+		if(!ca.match("booooooo line").equals("echo booooooo line"))
+			fail();
+		if(!ca.match("po line").equals("echo po line"))
+			fail();
+		if(!ca.match("tooooooo line").equals("tooooooo line"))
+			fail();
+		if(!ca.match("ptyo line").equals("ptyo line"))
+			fail();
 		
 		
 	}
