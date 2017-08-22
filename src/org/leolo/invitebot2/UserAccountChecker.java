@@ -20,7 +20,8 @@ public class UserAccountChecker extends ListenerAdapter {
 	
 	private HashMap<String, UserInfo> userList = new HashMap<>();
 	private static final long MAX_VALID_TIME = 1_800_000;//Unit is ms
-	private static final long RETRY_TIME = 1_800_000;//Unit is ms
+	private static final long RETRY_TIME = 300_000;//Unit is ms
+	private static final int WHOIS_WAIT_TIME = 2_000;//Unit is ms
 	private static UserAccountChecker instance = null;
 	
 	//Avoid being instanceized
@@ -99,15 +100,32 @@ public class UserAccountChecker extends ListenerAdapter {
 		logger.info("User {} part from all common channels", event.getUser().getNick());
 		userList.put(event.getUser().getNick(), null);
 	}
+	
 	public void onGenericMessage(GenericMessageEvent event) throws Exception {
 		logger.error(event.getClass().getCanonicalName());
 	}
 	
 	public String getLoggedInAs(String nickname){
+		return getLoggedInAs(nickname, false);
+	}
+	
+	private String getLoggedInAs(String nickname,boolean asked){
 		UserInfo ui = userList.get(nickname);
 		if(ui == null){
-			return null; 
+			if(!asked){
+				BotManager.bot.send().whois(nickname);
+				try {
+					Thread.sleep(WHOIS_WAIT_TIME);
+				} catch (InterruptedException e) {
+					logger.error(e.getMessage(), e);
+				}
+				return getLoggedInAs(nickname, true);
+			}else{
+				return null;
+			}
 		}
 		return ui.loggedInAs;
 	}
+	
+	
 }
