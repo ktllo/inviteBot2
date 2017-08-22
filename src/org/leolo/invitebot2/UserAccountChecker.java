@@ -111,6 +111,14 @@ public class UserAccountChecker extends ListenerAdapter {
 	
 	private String getLoggedInAs(String nickname,boolean asked){
 		UserInfo ui = userList.get(nickname);
+		if(ui!=null){
+			if(ui.loggedInAs !=null){
+				//Already have info
+				if(System.currentTimeMillis()-ui.time < MAX_VALID_TIME){
+					ui = null;
+				}
+			}
+		}
 		if(ui == null){
 			if(!asked){
 				BotManager.bot.send().whois(nickname);
