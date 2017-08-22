@@ -1,7 +1,7 @@
 package org.leolo.invitebot2;
 
-import java.util.HashMap;
-import java.util.Random;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import org.pircbotx.Channel;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class UserAccountChecker extends ListenerAdapter {
 	Logger logger = LoggerFactory.getLogger(UserAccountChecker.class);
 	
-	private HashMap<String, UserInfo> userList = new HashMap<>();
+	private Map<String, UserInfo> userList = new Hashtable<>();
 	private static final long MAX_VALID_TIME = 1_800_000;//Unit is ms
 	private static final long RETRY_TIME = 300_000;//Unit is ms
 	private static final int WHOIS_WAIT_TIME = 2_000;//Unit is ms
