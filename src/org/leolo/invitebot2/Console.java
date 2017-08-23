@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.leolo.invitebot2.annotation.ConsoleCommand;
 import org.leolo.invitebot2.db.DBManager;
 import org.leolo.invitebot2.model.CommandAlias;
+import org.leolo.invitebot2.util.Helper;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -35,8 +36,19 @@ public class Console extends ListenerAdapter{
 	}
 	 
 	public void onMessage(MessageEvent event) throws Exception {
-		String escapeChar = prop.getProperty("escape","");
-		handleLine(event.getMessage(),event.getBot(), event.getUser(), event.getChannel().getName(), CHANNEL);
+		String escapeChar = prop.getProperty("escape","!");
+		String line = event.getMessage();
+		if(line.startsWith(escapeChar)){
+			handleLine(line.substring(escapeChar.length()),event.getBot(), event.getUser(), event.getChannel().getName(), CHANNEL);
+		}else if(Helper.toLowerCase(line).startsWith(
+				Helper.toLowerCase(event.getBot().getNick())
+			)){
+			line = line.substring(event.getBot().getNick().length());
+			while(line.startsWith(" ") || line.startsWith(":") || line.startsWith(",")){
+				line = line.substring(1);
+			}
+			handleLine(line,event.getBot(), event.getUser(), event.getChannel().getName(), CHANNEL);
+		}
 	}
 	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
 		handleLine(event.getMessage(),event.getBot(), event.getUser(), null,  PRIVATE);
@@ -54,7 +66,9 @@ public class Console extends ListenerAdapter{
 	}
 	
 	private void handleLine(String line, PircBotX bot, User sender, String channel,  final int SOURCE){
+		logger.info("Handling {}", line);
 		line = preprocessLine(line);
+		logger.info("Handling {}", line);
 		Method [] methods = ccp.getClass().getDeclaredMethods();
 		try {
 			for(Method method:methods){
