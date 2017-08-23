@@ -6,10 +6,15 @@ import java.util.regex.Pattern;
 public class RegularExpressionCommandAlias extends CommandAlias {
 	
 	private Pattern pattern;
-	
-	RegularExpressionCommandAlias(String searchString, String replaceString) {
+	private int mode;
+	RegularExpressionCommandAlias(String searchString, String replaceString, int mode) {
 		super(searchString, replaceString);
-		pattern =  Pattern.compile("^"+searchString+"(.*)$");
+		this.mode = mode;
+		if(mode == CommandAlias.REGULAR_EXPRESSION_FULL)
+			pattern =  Pattern.compile("^"+searchString+" (.*)$",Pattern.CASE_INSENSITIVE);
+		else
+			pattern =  Pattern.compile("^"+searchString+"$",Pattern.CASE_INSENSITIVE);
+//		pattern.
 //		int count = Matcher.
 	}
 
@@ -23,7 +28,11 @@ public class RegularExpressionCommandAlias extends CommandAlias {
 		Matcher matcher = pattern.matcher(line);
 		if(matcher.matches()){
 			int groupCount = matcher.groupCount();
-			return matcher.replaceAll(replaceString+" $"+groupCount);
+			if(mode == CommandAlias.REGULAR_EXPRESSION_FULL)
+				return matcher.replaceAll(replaceString+" $"+groupCount);
+			else
+				return matcher.replaceAll(replaceString);
+			
 		}
 		return line;
 	}

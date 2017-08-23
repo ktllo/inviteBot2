@@ -4,6 +4,8 @@ public abstract class CommandAlias {
 	
 	public static final int PLAIN = 1;
 	public static final int REGULAR_EXPRESSION = 2;
+	public static final int REGULAR_EXPRESSION_FULL = 3;
+	
 	
 	protected String searchString;
 	protected String replaceString; 
@@ -12,7 +14,7 @@ public abstract class CommandAlias {
 		if(mode==PLAIN)
 			return new PlainCommandAlias(searchString, replaceString);
 		else if(mode == REGULAR_EXPRESSION)
-			return new RegularExpressionCommandAlias(searchString, replaceString);
+			return new RegularExpressionCommandAlias(searchString, replaceString, mode);
 		return null;
 	}
 	
