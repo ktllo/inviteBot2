@@ -13,7 +13,7 @@ public abstract class CommandAlias {
 	public static CommandAlias getAlias(String searchString, String replaceString, int mode){
 		if(mode==PLAIN)
 			return new PlainCommandAlias(searchString, replaceString);
-		else if(mode == REGULAR_EXPRESSION)
+		else if(mode == REGULAR_EXPRESSION || mode == REGULAR_EXPRESSION_FULL)
 			return new RegularExpressionCommandAlias(searchString, replaceString, mode);
 		return null;
 	}
@@ -26,4 +26,9 @@ public abstract class CommandAlias {
 	public abstract boolean isMatch(String line);
 	
 	public abstract String match(String line);
+
+	@Override
+	public String toString() {
+		return this.getClass().getName()+" [searchString=" + searchString + ", replaceString=" + replaceString + "]";
+	}
 }

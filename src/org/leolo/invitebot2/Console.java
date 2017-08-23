@@ -25,14 +25,15 @@ public class Console extends ListenerAdapter{
 	Logger logger = LoggerFactory.getLogger(Console.class);
 	private Properties prop;
 	
-	List<CommandAlias> commandAlias;
+	protected static List<CommandAlias> commandAlias;
 	DBManager dbman;
 	ConsoleCommandProvider ccp = new ConsoleCommandProvider();
 	
 	public Console(DBManager dbman,Properties prop){
 		this.dbman  = dbman;
 		this.prop = prop;
-		commandAlias = dbman.getCommandAliasDao().getAll();
+		if(commandAlias == null)
+			commandAlias = dbman.getCommandAliasDao().getAll();
 	}
 	 
 	public void onMessage(MessageEvent event) throws Exception {
@@ -56,8 +57,7 @@ public class Console extends ListenerAdapter{
 	
 	private String preprocessLine(String line){
 		for(CommandAlias as:commandAlias){
-			if(as==null)
-				break;
+			logger.info("Checking {}, result {}",as, as.isMatch(line));
 			if(as.isMatch(line)){
 				return as.match(line);
 			}

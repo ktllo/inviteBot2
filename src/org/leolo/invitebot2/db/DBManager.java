@@ -19,8 +19,6 @@ public abstract class DBManager {
 	private boolean ready =  false;
 	
 	private static DBManager instance = null;
-
-	private static DBManager instace;
 	
 	public static synchronized DBManager createInstance(String className, Properties prop) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
 		Object obj = Class.forName(className).newInstance();
@@ -42,7 +40,7 @@ public abstract class DBManager {
 	}
 	
 	public static DBManager getInstance(){
-		return instace;
+		return instance;
 	}
 	
 	public void setProperties(Properties properties){
