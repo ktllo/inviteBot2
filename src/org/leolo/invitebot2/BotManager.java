@@ -56,6 +56,7 @@ public class BotManager {
                 .addCapHandler(new EnableCapHandler("extended-join",false))
 //                .addListener(new InviteBot())
                 .addListener(UserAccountChecker.getInstance())
+                .addListener(new Console(dbMan))
                 .setOnJoinWhoEnabled(true)
                 .buildConfiguration();
 
