@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.leolo.invitebot2.db.DBManager;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
+import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.exception.IrcException;
 import org.slf4j.Logger;
@@ -43,22 +44,42 @@ public class BotManager {
 			logger.error("Cannot load dbmanager class name. STOP");
 			System.exit(ErrorCode.CONFIG_ERROR);
 		}
-		Configuration configuration = new Configuration.Builder()
-                .setName("lionbot") //Set the nick of the bot. CHANGE IN YOUR CODE
-                .addServer("irc.freenode.net") //Join the freenode network
+		Configuration.Builder b = new Configuration.Builder()
+                .setName(prop.getProperty("nick", "invitebot2")) //Set the nick of the bot. CHANGE IN YOUR CODE
                 .addAutoJoinChannel("##ktllo")
                 .addAutoJoinChannel("##invitebot")
                 .addCapHandler(new EnableCapHandler("extended-join",false))
-//                .addListener(new InviteBot())
                 .addListener(UserAccountChecker.getInstance())
                 .addListener(new Console(dbMan, prop))
                 .setOnJoinWhoEnabled(true)
-                .buildConfiguration();
-
+                .setRealName(prop.getProperty("fullname", "invitebot2, new version of invitebot"));
+		if(prop.getProperty("ssl","false").equals("true")){
+			if(prop.getProperty("ssl.accept_all_cert","false").equals("true")){
+				b=b.setSocketFactory(new UtilSSLSocketFactory().disableDiffieHellman().trustAllCertificates());
+			}else{
+				b=b.setSocketFactory(new UtilSSLSocketFactory().disableDiffieHellman());
+			}
+			b = b.addServer(prop.getProperty("server"),Integer.parseInt(prop.getProperty("port", "6697")));
+		}else{
+			b = b.addServer(prop.getProperty("server"),Integer.parseInt(prop.getProperty("port", "6667")));
+		}
+        String auth = prop.getProperty("auth");
+        if("nickserv".equals(auth)){
+        	b =  b.setNickservNick(prop.getProperty("user"))
+        			.setNickservPassword(prop.getProperty("password"));
+        }else if("sasl".equals(auth)){
+        	b = b.addCapHandler(new org.pircbotx.cap.SASLCapHandler(prop.getProperty("user"), prop.getProperty("password")));
+        }else if("server".equals(auth)){
+        	b = b.setServerPassword(prop.getProperty("password"));
+        }
+        Configuration configuration =  b.buildConfiguration();
+        
 		//Create our bot with the configuration
 		bot = new PircBotX(configuration);
 		//Connect to the server
 		bot.startBot();
+		
+//		bot.sendRaw().rawLine("ns :IDENTIFY "+prop.getProperty("user")+" "+prop.getProperty("password"));
 	}
 	
 }
