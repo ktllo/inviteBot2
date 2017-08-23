@@ -2,6 +2,9 @@ package org.leolo.invitebot2.db.mysql;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.leolo.invitebot2.model.Config;
 
 public class ConfigDao implements org.leolo.invitebot2.db.ConfigDao{
@@ -66,5 +69,36 @@ public class ConfigDao implements org.leolo.invitebot2.db.ConfigDao{
 				conn.close();
 			}
 		}
+	}
+
+	@Override
+	public Map<String, Config> getAll() throws SQLException {
+		Map<String, Config> map = new HashMap<>();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "SELECT `key`,`value` FROM `config`";
+		try{
+			conn = ds.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()){
+				Config config = new Config(rs.getString(1), rs.getString(2));
+				map.put(rs.getString(1), config);
+			}
+		}catch(SQLException sqle){
+			throw sqle;
+		}finally{
+			if(rs!=null){
+				rs.close();
+			}
+			if(pstmt!=null){
+				pstmt.close();
+			}
+			if(conn!=null){
+				conn.close();
+			}
+		}
+		return map;
 	}
 }
