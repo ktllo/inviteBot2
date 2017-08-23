@@ -1,7 +1,7 @@
 package org.leolo.invitebot2;
 
-import java.util.HashMap;
-import java.util.Random;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import org.pircbotx.Channel;
@@ -18,9 +18,10 @@ import org.slf4j.LoggerFactory;
 public class UserAccountChecker extends ListenerAdapter {
 	Logger logger = LoggerFactory.getLogger(UserAccountChecker.class);
 	
-	private HashMap<String, UserInfo> userList = new HashMap<>();
+	private Map<String, UserInfo> userList = new Hashtable<>();
 	private static final long MAX_VALID_TIME = 1_800_000;//Unit is ms
-	private static final long RETRY_TIME = 1_800_000;//Unit is ms
+	private static final long RETRY_TIME = 300_000;//Unit is ms
+	private static final int WHOIS_WAIT_TIME = 2_000;//Unit is ms
 	private static UserAccountChecker instance = null;
 	
 	//Avoid being instanceized
@@ -99,56 +100,40 @@ public class UserAccountChecker extends ListenerAdapter {
 		logger.info("User {} part from all common channels", event.getUser().getNick());
 		userList.put(event.getUser().getNick(), null);
 	}
+	
 	public void onGenericMessage(GenericMessageEvent event) throws Exception {
 		logger.error(event.getClass().getCanonicalName());
 	}
-	class UserInfo{
-		private String nick;
-		private String hostmask;
-		private String loggedInAs;
-		private long time;
-		
-		private UserInfo(String nick, String hostmask, String loggedInAs){
-			this.nick = nick;
-			this.hostmask = hostmask;
-			this.loggedInAs = loggedInAs;
-			this.time = System.currentTimeMillis();
-		}
-
-		public String getNick() {
-			return nick;
-		}
-
-		public void setNick(String nick) {
-			this.nick = nick;
-		}
-
-		public String getHostmask() {
-			return hostmask;
-		}
-
-		public void setHostmask(String hostmask) {
-			this.hostmask = hostmask;
-		}
-
-		public String getLoggedInAs() {
-			return loggedInAs;
-		}
-
-		public void setLoggedInAs(String loggedInAs) {
-			this.loggedInAs = loggedInAs;
-		}
-
-		public long getTime() {
-			return time;
-		}
-
-		public void renewTime(){
-			time = System.currentTimeMillis();
-		}
-		
-		public void invalidate(){
-			time = 0;
-		}
+	
+	public String getLoggedInAs(String nickname){
+		return getLoggedInAs(nickname, false);
 	}
+	
+	private String getLoggedInAs(String nickname,boolean asked){
+		UserInfo ui = userList.get(nickname);
+		if(ui!=null){
+			if(ui.loggedInAs !=null){
+				//Already have info
+				if(System.currentTimeMillis()-ui.time < MAX_VALID_TIME){
+					ui = null;
+				}
+			}
+		}
+		if(ui == null){
+			if(!asked){
+				BotManager.bot.send().whois(nickname);
+				try {
+					Thread.sleep(WHOIS_WAIT_TIME);
+				} catch (InterruptedException e) {
+					logger.error(e.getMessage(), e);
+				}
+				return getLoggedInAs(nickname, true);
+			}else{
+				return null;
+			}
+		}
+		return ui.loggedInAs;
+	}
+	
+	
 }
