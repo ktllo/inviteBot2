@@ -24,24 +24,19 @@ public class BotManager {
 		prop.load(new java.io.FileInputStream("settings.properties"));
 		DBManager dbMan = null;
 		if(prop.containsKey("dbmanager")){
-			try{
-				Object obj = Class.forName(prop.getProperty("dbmanager")).newInstance();
-				if(!(obj instanceof DBManager)){
-					logger.error("Illegal DBManager {}", obj.getClass().getCanonicalName());
-					System.exit(ErrorCode.DB_INIT_ERROR);
-				}
-				dbMan = (DBManager) obj;
-				dbMan.setProperties(prop);
-				dbMan.init();
-				if(!dbMan.isReady()){
-					logger.error("Cannot start DB Manager");
-					System.exit(ErrorCode.DB_INIT_ERROR);
-				}
-			}catch(ClassNotFoundException | InstantiationException | IllegalAccessException cnfe){
-				logger.error("Cannot load class", cnfe);
+			try {
+				dbMan = DBManager.createInstance(prop.getProperty("dbmanager"), prop);
+			} catch (InstantiationException e) {
+				logger.error("Cannot load dbmanager class name. STOP");
 				System.exit(ErrorCode.CONFIG_ERROR);
-			}catch(SQLException sqle){
-				logger.error("Cannot start DB Manager", sqle);
+			} catch (IllegalAccessException e) {
+				logger.error("Cannot load dbmanager class name. STOP");
+				System.exit(ErrorCode.CONFIG_ERROR);
+			} catch (ClassNotFoundException e) {
+				logger.error("Cannot load dbmanager class name. STOP");
+				System.exit(ErrorCode.CONFIG_ERROR);
+			} catch (RuntimeException e) {
+				logger.error(e.getMessage());
 				System.exit(ErrorCode.DB_INIT_ERROR);
 			}
 		}else{
