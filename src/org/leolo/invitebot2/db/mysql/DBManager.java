@@ -61,8 +61,7 @@ public class DBManager extends org.leolo.invitebot2.db.DBManager{
 
 	@Override
 	public CommandAliasDao getCommandAliasDao() {
-		// TODO Auto-generated method stub
-		return null;
+		return new org.leolo.invitebot2.db.mysql.CommandAliasDao(ds);
 	}
 
 }
