@@ -1,9 +1,9 @@
 package org.leolo.invitebot2;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Properties;
 
 import org.leolo.invitebot2.annotation.ConsoleCommand;
 import org.leolo.invitebot2.db.DBManager;
@@ -11,6 +11,7 @@ import org.leolo.invitebot2.model.CommandAlias;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ListenerExceptionEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.slf4j.Logger;
@@ -21,56 +22,76 @@ public class Console extends ListenerAdapter{
 	private static final int CHANNEL = 1;
 	private static final int PRIVATE = 2;
 	Logger logger = LoggerFactory.getLogger(Console.class);
+	private Properties prop;
 	
 	List<CommandAlias> commandAlias;
 	DBManager dbman;
 	ConsoleCommandProvider ccp = new ConsoleCommandProvider();
 	
-	public Console(DBManager dbman){
+	public Console(DBManager dbman,Properties prop){
 		this.dbman  = dbman;
+		this.prop = prop;
 		commandAlias = dbman.getCommandAliasDao().getAll();
 	}
 	 
 	public void onMessage(MessageEvent event) throws Exception {
-//		handleLine(event.getMessage(),event.getBot(), event.getUser(), CHANNEL);
+		String escapeChar = prop.getProperty("escape","");
+		handleLine(event.getMessage(),event.getBot(), event.getUser(), event.getChannel().getName(), CHANNEL);
 	}
 	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
-		handleLine(event.getMessage(),event.getBot(), event.getUser(), PRIVATE);
+		handleLine(event.getMessage(),event.getBot(), event.getUser(), null,  PRIVATE);
 	}
 	
 	private String preprocessLine(String line){
 		for(CommandAlias as:commandAlias){
+			if(as==null)
+				break;
 			if(as.isMatch(line)){
 				return as.match(line);
 			}
 		}
-		return line;
+		return line.trim();
 	}
 	
-	private void handleLine(String line, PircBotX bot, User sender, final int source){
+	private void handleLine(String line, PircBotX bot, User sender, String channel,  final int SOURCE){
+		line = preprocessLine(line);
 		Method [] methods = ccp.getClass().getDeclaredMethods();
 		try {
 			for(Method method:methods){
-//				logger.debug("Dealing with method");
+				logger.debug("Dealing with method "+method.getName());
 				if(method.isAnnotationPresent(ConsoleCommand.class)){
 					ConsoleCommand cc = (ConsoleCommand)method.getAnnotation(ConsoleCommand.class);
 					if(line.toLowerCase().startsWith(cc.name().toLowerCase())){
-						
-							Object obj = method.invoke(ccp, line);
-							
-							logger.info("Command result {}",obj);
+						ConsoleCommandResult ccr = (ConsoleCommandResult)method.invoke(ccp, line, sender);
+						ccr.doneOutput();
+						if(SOURCE ==PRIVATE || ccr.isPmOnly()){
+							String outputLine = ccr.nextLine();
+							while(outputLine != null){
+								bot.send().message(sender.getNick(), outputLine);
+								outputLine = ccr.nextLine();
+							}
+						}else{
+							String outputLine = ccr.nextLine();
+							while(outputLine != null){
+								bot.send().message(channel , sender.getNick()+": "+outputLine);
+								outputLine = ccr.nextLine();
+							}
+						}
+						return;
 					}
 				}
 			}
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public void onListenerException(ListenerExceptionEvent event) throws Exception {
+		logger.error(event.getException().getMessage(), event.getException());
 	}
 }
