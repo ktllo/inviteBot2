@@ -27,13 +27,14 @@ public class Console extends ListenerAdapter{
 	
 	protected static List<CommandAlias> commandAlias;
 	DBManager dbman;
-	ConsoleCommandProvider ccp = new ConsoleCommandProvider();
+	ConsoleCommandProvider ccp;
 	
 	public Console(DBManager dbman,Properties prop){
 		this.dbman  = dbman;
 		this.prop = prop;
 		if(commandAlias == null)
 			commandAlias = dbman.getCommandAliasDao().getAll();
+		ccp = new ConsoleCommandProvider(prop);
 	}
 	 
 	public void onMessage(MessageEvent event) throws Exception {
@@ -72,7 +73,7 @@ public class Console extends ListenerAdapter{
 		Method [] methods = ccp.getClass().getDeclaredMethods();
 		try {
 			for(Method method:methods){
-				logger.debug("Dealing with method "+method.getName());
+//				logger.debug("Dealing with method "+method.getName());
 				if(method.isAnnotationPresent(ConsoleCommand.class)){
 					ConsoleCommand cc = (ConsoleCommand)method.getAnnotation(ConsoleCommand.class);
 					if(line.toLowerCase().startsWith(cc.name().toLowerCase())){

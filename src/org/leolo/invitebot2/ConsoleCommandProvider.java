@@ -1,14 +1,23 @@
 package org.leolo.invitebot2;
 
+import java.util.Properties;
+
 import org.leolo.invitebot2.annotation.ConsoleCommand;
 import org.leolo.invitebot2.db.CommandAliasDao;
 import org.leolo.invitebot2.db.DBManager;
+import org.leolo.invitebot2.util.StringUtil;
 import org.pircbotx.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsoleCommandProvider {
+	private Properties prop;
+	
 	Logger logger = LoggerFactory.getLogger(ConsoleCommandProvider.class);
+	
+	public ConsoleCommandProvider(Properties prop){
+		this.prop = prop;
+	}
 	
 	@ConsoleCommand(pmOnly = false, name = "ping")
 	public ConsoleCommandResult ping(String line, User source){
@@ -27,11 +36,14 @@ public class ConsoleCommandProvider {
 	@ConsoleCommand(pmOnly = false, name = "aliasreload")
 	public ConsoleCommandResult reloadAlias(String line, User source){
 		ConsoleCommandResult ccr = new ConsoleCommandResult();
-		DBManager dbMan = DBManager.getInstance();
-		CommandAliasDao cadao = dbMan.getCommandAliasDao();
-		Console.commandAlias = cadao.getAll();
-		ccr.println("Alias reloaded");
-		logger.info(Console.commandAlias.toString());
+		if(StringUtil.toEmptyIfNull(prop.getProperty("admin")).equals(UserAccountChecker.getInstance().getLoggedInAs(source.getNick()))){
+			DBManager dbMan = DBManager.getInstance();
+			CommandAliasDao cadao = dbMan.getCommandAliasDao();
+			long startTime = System.currentTimeMillis();
+			Console.commandAlias = cadao.getAll();
+			ccr.println("Alias reloaded, new size is "+Console.commandAlias.size()+
+					", time spent is "+(System.currentTimeMillis()-startTime)+"ms");
+		}
 		return ccr;
 	}
 	
