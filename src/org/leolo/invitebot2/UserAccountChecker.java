@@ -41,12 +41,12 @@ public class UserAccountChecker extends ListenerAdapter {
 		if(ui!=null){
 			if(ui.loggedInAs !=null){
 				//Already have info
-				if(System.currentTimeMillis()-ui.time< MAX_VALID_TIME){
+				if((System.currentTimeMillis()-ui.time)> MAX_VALID_TIME){
 					return;
 				}
 			}else{
 				//No information yet
-				if(System.currentTimeMillis()-ui.time< RETRY_TIME){
+				if((System.currentTimeMillis()-ui.time)> RETRY_TIME){
 					return;
 				}
 			}
@@ -114,7 +114,7 @@ public class UserAccountChecker extends ListenerAdapter {
 		if(ui!=null){
 			if(ui.loggedInAs !=null){
 				//Already have info
-				if(System.currentTimeMillis()-ui.time < MAX_VALID_TIME){
+				if((System.currentTimeMillis()-ui.time) > MAX_VALID_TIME){
 					ui = null;
 				}
 			}
