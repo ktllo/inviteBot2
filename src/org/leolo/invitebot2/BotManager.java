@@ -1,6 +1,7 @@
 package org.leolo.invitebot2;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -52,6 +53,7 @@ public class BotManager {
                 .addListener(UserAccountChecker.getInstance())
                 .addListener(new Console(dbMan, prop))
                 .setOnJoinWhoEnabled(true)
+                .setEncoding(Charset.forName("utf-8"))
                 .setRealName(prop.getProperty("fullname", "invitebot2, new version of invitebot"));
 		if(prop.getProperty("ssl","false").equals("true")){
 			if(prop.getProperty("ssl.accept_all_cert","false").equals("true")){
