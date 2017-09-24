@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.leolo.invitebot2.annotation.ConsoleCommand;
 import org.leolo.invitebot2.db.CommandAliasDao;
 import org.leolo.invitebot2.db.DBManager;
+import org.leolo.invitebot2.util.Glob;
 import org.leolo.invitebot2.util.StringUtil;
 import org.pircbotx.User;
 import org.slf4j.Logger;
@@ -44,6 +45,24 @@ public class ConsoleCommandProvider {
 			ccr.println("Alias reloaded, new size is "+Console.commandAlias.size()+
 					", time spent is "+(System.currentTimeMillis()-startTime)+"ms");
 		}
+		return ccr;
+	}
+	
+	@ConsoleCommand(pmOnly=false, name = "match")
+	public ConsoleCommandResult match(String line, User source){
+		Glob glob = new Glob();
+		ConsoleCommandResult ccr = new ConsoleCommandResult();
+		try{
+			glob.parse(line.substring(6));
+			if(glob.match(source)){
+				ccr.println("Matches hostmask "+line.substring(6));
+			}else{
+				ccr.println("Does not match hostmask "+line.substring(6));
+			}
+		}catch(RuntimeException re){
+			ccr.println("Unable to parse hostmask "+line.substring(6));
+		}
+		
 		return ccr;
 	}
 	
